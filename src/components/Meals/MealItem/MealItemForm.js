@@ -1,5 +1,4 @@
 import React, { useRef,useState } from "react";
-import PropTypes from "prop-types";
 import classes from "./MealItemForm.module.css";
 import Input from "../../UI/Input";
 
@@ -43,7 +42,5 @@ const MealItemForm = (props) => {
     </form>
   );
 };
-
-MealItemForm.propTypes = {};
 
 export default MealItemForm;

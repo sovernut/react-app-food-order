@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import PropTypes from "prop-types";
 import classes from "./MealItem.module.css";
 import MealItemForm from "./MealItemForm";
 import CartContext from "../../../store/cart-context";
@@ -29,6 +28,5 @@ const MealItem = (props) => {
   );
 };
 
-MealItem.propTypes = {};
 
 export default MealItem;
