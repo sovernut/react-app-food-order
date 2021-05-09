@@ -6,7 +6,10 @@ import CartItem from "./CartItem";
 import Checkout from "./Checkout";
 
 const Cart = (props) => {
-  const [isCheckOut, setisCheckOut] = useState(false);
+  const [isCheckOut, setIsCheckOut] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [didSubmit, setDidSubmit] = useState(false);
+
   const cartCtx = useContext(CartContext);
   const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
   const hasItems = cartCtx.items.length > 0;
@@ -19,18 +22,26 @@ const Cart = (props) => {
   };
 
   const orderHandler = () => {
-    setisCheckOut(true);
+    setIsCheckOut(true);
   };
 
-  const submitOrderHandler = (userData) => {
-    fetch('https://react-http-1cf62-default-rtdb.asia-southeast1.firebasedatabase.app/orders.json',{
-      method: 'POST',
-      body: JSON.stringify({
-        user: userData,
-        orderedItems: cartCtx.items
-      })
-    })
-  }
+  const submitOrderHandler = async (userData) => {
+    // here we not have problem because its not in useEffect fucntion
+    setIsSubmitting(true);
+    const response = await fetch(
+      "https://react-http-1cf62-default-rtdb.asia-southeast1.firebasedatabase.app/orders.json",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          user: userData,
+          orderedItems: cartCtx.items,
+        }),
+      }
+    );
+    setIsSubmitting(false);
+    setDidSubmit(true);
+    cartCtx.clearCart();
+  };
 
   const cartItems = (
     <ul className={classes["cart-items"]}>
@@ -60,15 +71,38 @@ const Cart = (props) => {
     </div>
   );
 
-  return (
-    <Modal onClick={props.onClose}>
+  const isSubmittingModalContent = <p>Sending order data..</p>;
+
+  const cardModalContent = (
+    <>
       {cartItems}
       <div className={classes.total}>
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      {isCheckOut && <Checkout onConfirm={submitOrderHandler} onCancel={props.onClose} />}
+      {isCheckOut && (
+        <Checkout onConfirm={submitOrderHandler} onCancel={props.onClose} />
+      )}
       {!isCheckOut && modalAction}
+    </>
+  );
+
+  const didSubmitModalContent = (
+    <>
+      <p>Successfully sent order!</p>
+      <div className={classes.actions}>
+        <button className={classes["button--alt"]} onClick={props.onClose}>
+          Close
+        </button>
+      </div>
+    </>
+  );
+
+  return (
+    <Modal onClick={props.onClose}>
+      {!isSubmitting && !didSubmit && cardModalContent}
+      {isSubmitting && isSubmittingModalContent}
+      {!isSubmitting && didSubmit && didSubmitModalContent}
     </Modal>
   );
 };
